@@ -1,37 +1,39 @@
-package com.jb.makemytrip2.service;
+package com.jb.mmt_webclient.service;
 
-import com.jb.makemytrip2.bindings.Passenger;
-import com.jb.makemytrip2.bindings.Ticket;
-import org.springframework.http.ResponseEntity;
+import com.jb.mmt_webclient.bindings.Passenger;
+import com.jb.mmt_webclient.bindings.Ticket;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Service
 public class MakeMyTripService {
-    public Ticket bookTicket(Passenger p){
+    public Mono<Ticket> bookTicket(Passenger p){
        String apiUrl ="http://13.200.229.121:8080/ticket";
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<Ticket> forEntity =
-                rt.postForEntity(apiUrl, p, Ticket.class);
+        WebClient webClient = WebClient.create();
+        Mono<Ticket> bodyToMono = webClient.post()
+                .uri(apiUrl)
+                .body(BodyInserters.fromValue(p))
+                .retrieve()
+                .bodyToMono(Ticket.class);
 
-        Ticket body = forEntity.getBody();
-
-        return body;
+        return bodyToMono;
     }
 
-    public List<Ticket> getAllTickets(){
+    public Mono<Ticket[]> getAllTickets(){
         String apiUrl ="http://13.200.229.121:8080/tickets";
         RestTemplate rt = new RestTemplate();
 
-        ResponseEntity<Ticket[]> forEntity = rt.getForEntity(apiUrl, Ticket[].class);
-
-        Ticket[]  body = forEntity.getBody();
-        assert body != null;
-        List<Ticket> tickets = Arrays.asList(body);
-        return tickets;
+        WebClient webClient = WebClient.create();
+        Mono<Ticket[]> bodyToMono = webClient.get()
+                .uri(apiUrl)
+                .retrieve()
+                .bodyToMono(Ticket[].class);
+      //  assert body != null;
+     //   List<Ticket> tickets = Arrays.asList(body);
+        return bodyToMono;
     }
 
 }

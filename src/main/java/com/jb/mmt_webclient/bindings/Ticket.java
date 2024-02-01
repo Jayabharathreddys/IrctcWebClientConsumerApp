@@ -1,4 +1,4 @@
-package com.jb.makemytrip2.bindings;
+package com.jb.mmt_webclient.bindings;
 
 public class Ticket {
     private Integer ticketNum;

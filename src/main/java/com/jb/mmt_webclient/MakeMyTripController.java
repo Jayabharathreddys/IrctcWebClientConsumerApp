@@ -1,14 +1,14 @@
-package com.jb.makemytrip2.controller;
+package com.jb.mmt_webclient;
 
-import com.jb.makemytrip2.bindings.Passenger;
-import com.jb.makemytrip2.bindings.Ticket;
-import com.jb.makemytrip2.service.MakeMyTripService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jb.mmt_webclient.bindings.Passenger;
+import com.jb.mmt_webclient.bindings.Ticket;
+import com.jb.mmt_webclient.service.MakeMyTripService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -23,10 +23,11 @@ public class MakeMyTripController {
 
     @PostMapping("/ticket")
     public String ticketBooking(@ModelAttribute("p") Passenger p, Model m){
-        Ticket bookTicket =  service.bookTicket(p);
-        m.addAttribute("ticket", bookTicket);
+        Mono<Ticket> bookTicket =  service.bookTicket(p);
+        Ticket ticket = bookTicket.block();
+        m.addAttribute("ticket", ticket);
         m.addAttribute("msg", "Your ticket is booked"
-                +bookTicket.getTicketNum());
+                +ticket.getTicketNum());
         return "bookTicket";
     }
 
@@ -39,7 +40,7 @@ public class MakeMyTripController {
 
     @GetMapping("/")
     public String index(Model model){
-        List<Ticket> allTickets = service.getAllTickets();
+        Mono<Ticket[]> allTickets = service.getAllTickets();
         model.addAttribute("tickets", allTickets);
         return "index";
     }
